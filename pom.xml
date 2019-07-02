@@ -12,7 +12,8 @@
 	<artifactId>CogentProject</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>CogentProject</name>
-	<description>Project For Cogent</description>
+	<description>Web application to automate common activities of an office.
+	Includes activities like attendance management, task management, leave management, resource management.</description>
 
 	<properties>
 		<java.version>1.8</java.version>
