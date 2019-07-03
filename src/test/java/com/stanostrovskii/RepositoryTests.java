@@ -20,6 +20,10 @@ import com.stanostrovskii.dao.EmployeeRepository;
 import com.stanostrovskii.model.Department;
 import com.stanostrovskii.model.Employee;
 
+/**
+ * Can be used for testing with embedded repository like H2.
+ * @author Stan
+ */
 @RunWith(SpringRunner.class)
 @DataJpaTest
 @ComponentScan(basePackages = "com.stanostrovskii")
