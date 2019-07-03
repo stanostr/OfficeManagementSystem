@@ -73,7 +73,14 @@ public class AdminController {
 	public void deleteEmployee(@RequestBody Employee employee) {
 		employeeRepository.delete(employee);
 	}
-
+	
+	@GetMapping(value = "/departments")
+	public List<Department> viewDepartments() {
+		List<Department> departments = new ArrayList<>();
+		departmentRepository.findAll().forEach(departments::add);
+		return departments;
+	}
+	
 	@PostMapping(value = "/departments")
 	@ResponseStatus(HttpStatus.CREATED)
 	public Department addDepartment(@RequestBody Department department) {

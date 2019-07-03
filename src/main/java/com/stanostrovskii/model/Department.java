@@ -18,10 +18,6 @@ public class Department {
 		this.departmentName = departmentName;
 	}
 
-	/*
-	 * @OneToMany(mappedBy = "dept") private List<Employee> employees = new
-	 * ArrayList<>();
-	 */
 	public Long getId() {
 		return id;
 	}
