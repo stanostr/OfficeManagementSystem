@@ -6,8 +6,9 @@ import java.util.Collection;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-
+import javax.persistence.Table;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,11 +19,12 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author Stan
  */
 @Entity
+@Table(name = "eoffice_admin")
 public class Admin implements UserDetails {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	@Column(name = "admin_id")
 	private Long id;
 	@Column(name = "first_name")
@@ -31,7 +33,16 @@ public class Admin implements UserDetails {
 	private String lastName;
 	@Column(unique = true)
 	private String username;
+	@Column(nullable = false)
 	private String password;
+
+	public Admin() {}
+	public Admin(String firstName, String lastName, String username, String password) {
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.username = username;
+		this.password = password;
+	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -35,7 +35,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		}
 		// if not found there, look in employee repository
 		else {
-			// recall that employee logins are their email address
+			// recall that employees login with their email address 
 			Employee employee = employeeRepository.findByEmail(username);
 			if (employee != null)
 				return employee;

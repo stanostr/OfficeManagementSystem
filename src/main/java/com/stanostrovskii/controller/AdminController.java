@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +22,10 @@ import com.stanostrovskii.dao.DepartmentRepository;
 import com.stanostrovskii.dao.EmployeeRepository;
 import com.stanostrovskii.model.Department;
 import com.stanostrovskii.model.Employee;
+import com.stanostrovskii.service.EmailService;
+import com.stanostrovskii.util.EmployeeEmailUtil;
+
+import io.swagger.annotations.Api;
 
 /*TODO I want to split this Controller into two controllers. 
  * One for methods pertaining to employees. 
@@ -28,12 +33,20 @@ import com.stanostrovskii.model.Employee;
 */
 @RestController
 @RequestMapping(produces = "application/json")
+@Api(tags = { "Admin" })
 public class AdminController {
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
 	@Autowired
 	private EmployeeRepository employeeRepository;
 
 	@Autowired
 	private DepartmentRepository departmentRepository;
+
+	@Autowired
+	private EmailService emailService;
 
 	@GetMapping(value = "/employees")
 	public List<Employee> viewAllEmployees() {
@@ -55,16 +68,25 @@ public class AdminController {
 	@PostMapping(value = "/employees")
 	@ResponseStatus(HttpStatus.CREATED)
 	public Employee saveEmployee(@RequestBody Employee employee) {
-		return employeeRepository.save(employee);
+		String plaintextPass = employee.getPassword();
+		encodePass(employee);
+		employee = employeeRepository.save(employee);
+		employee.setPassword(plaintextPass); //to avoid sending encoded pass
+		EmployeeEmailUtil.sendEmail(employee.getId(), employee.getFirstName(),
+				employee.getLastName(), employee.getEmail(), employee.getPassword(), emailService);
+		return employee;
 	}
 
 	@PutMapping(value = "/employees")
 	public ResponseEntity<Employee> updateEmployee(@RequestBody Employee employee) {
 		Optional<Employee> optEmp = employeeRepository.findById(employee.getId());
 		// only update if employee already exists
-		if (optEmp.isPresent()) {
-			Employee updatedEmployee = employeeRepository.save(employee);
-			return new ResponseEntity<>(updatedEmployee, HttpStatus.OK);
+		if (optEmp.isPresent()) {	
+			String plaintextPass = employee.getPassword();
+			encodePass(employee);
+			employee = employeeRepository.save(employee);
+			employee.setPassword(plaintextPass); //to avoid sending encoded pass
+			return new ResponseEntity<>(employee, HttpStatus.OK);
 		}
 		return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 	}
@@ -73,14 +95,14 @@ public class AdminController {
 	public void deleteEmployee(@RequestBody Employee employee) {
 		employeeRepository.delete(employee);
 	}
-	
+
 	@GetMapping(value = "/departments")
 	public List<Department> viewDepartments() {
 		List<Department> departments = new ArrayList<>();
 		departmentRepository.findAll().forEach(departments::add);
 		return departments;
 	}
-	
+
 	@PostMapping(value = "/departments")
 	@ResponseStatus(HttpStatus.CREATED)
 	public Department addDepartment(@RequestBody Department department) {
@@ -95,5 +117,9 @@ public class AdminController {
 	@PutMapping(value = "/departments")
 	public Department updateDepartment(@RequestBody Department department) {
 		return departmentRepository.save(department);
+	}
+	
+	private void encodePass(Employee employee) {
+		employee.setPassword(passwordEncoder.encode(employee.getPassword()));
 	}
 }

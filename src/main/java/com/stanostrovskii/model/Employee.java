@@ -2,13 +2,13 @@ package com.stanostrovskii.model;
 
 import java.util.Arrays;
 import java.util.Collection;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotBlank;
 
 import org.springframework.security.config.annotation.authentication.configurers.userdetails.UserDetailsAwareConfigurer;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,6 +28,7 @@ public class Employee implements UserDetails {
 	private String lastName;
 	@Column(unique = true)
 	private String email;
+	@Column(nullable = false)
 	private String password;
 	@Column(name = "contact_number")
 	private String contactNumber;
@@ -38,20 +39,22 @@ public class Employee implements UserDetails {
 	public Employee() {
 	}
 
-	public Employee(Long id, String firstName, String lastName, String email, String contactNumber, Department dept) {
+	public Employee(Long id, String firstName, String lastName, String email, String contactNumber, String password, Department dept) {
 		this.id = id;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.email = email;
 		this.contactNumber = contactNumber;
+		this.password = password;
 		this.dept = dept;
 	}
 
-	public Employee(String firstName, String lastName, String email, String contactNumber) {
+	public Employee(String firstName, String lastName, String email, String contactNumber, String password) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.email = email;
 		this.contactNumber = contactNumber;
+		this.password = password;
 	}
 
 	public Long getId() {
@@ -105,7 +108,11 @@ public class Employee implements UserDetails {
 	@Override
 	public String toString() {
 		return "Employee [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
-				+ ", contactNumber=" + contactNumber + ", dept=" + dept + "]";
+				+ ", password=" + password + ", contactNumber=" + contactNumber + ", dept=" + dept + "]";
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	@Override
