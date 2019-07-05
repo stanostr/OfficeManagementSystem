@@ -1,8 +1,5 @@
 package com.stanostrovskii.security;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -22,15 +19,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.sun.org.apache.xpath.internal.operations.And;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-	
+
 	@Autowired
 	private JwtAuthorizationFilter jwtAuthorizationFilter;
-	
+
 	@Autowired
 	private UserDetailsService userDetailsService;
 
@@ -39,18 +34,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public AuthenticationManager authenticationManagerBean() throws Exception {
 		return super.authenticationManagerBean();
 	}
-	
+
 	@Bean
-	public AuthenticationEntryPoint authenticationEntryPoint()
-	{
+	public AuthenticationEntryPoint authenticationEntryPoint() {
 		return (HttpServletRequest request, HttpServletResponse response,
-				AuthenticationException authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");	
+				AuthenticationException authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
+						"Unauthorized");
 	}
-	
+
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
+
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
@@ -58,14 +54,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		//TODO make crsf work.
+		// TODO make crsf work.
 		http.csrf().disable()
-				//requests to these paths require authentication
+				// requests to these paths require authentication
 				.authorizeRequests().antMatchers("/employees", "/departments").authenticated()
-				//requests to these paths require admin privileges
-				.antMatchers("/employees", "/departments").access("hasRole('ROLE_ADMIN')")
-				.antMatchers("/").permitAll().and()
-				//session won't be used to store user's state.
+				// requests to these paths require admin privileges
+				.antMatchers("/employees", "/departments").access("hasRole('ROLE_ADMIN')").antMatchers("/").permitAll()
+				.and()
+				// session won't be used to store user's state.
 				.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint()).and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		// Add a filter to validate the tokens with every request

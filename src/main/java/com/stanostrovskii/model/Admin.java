@@ -14,8 +14,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
- * After much thought, I decided that persisting admin information in a separate table is
- * the simplest, albeit not the most elegant, way to manage security.
+ * After much thought, I decided that persisting admin information in a separate
+ * table is the simplest, albeit not the most elegant, way to manage security.
+ * 
  * @author Stan
  */
 @Entity
@@ -36,7 +37,9 @@ public class Admin implements UserDetails {
 	@Column(nullable = false)
 	private String password;
 
-	public Admin() {}
+	public Admin() {
+	}
+
 	public Admin(String firstName, String lastName, String username, String password) {
 		this.firstName = firstName;
 		this.lastName = lastName;
