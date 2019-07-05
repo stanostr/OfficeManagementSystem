@@ -57,12 +57,12 @@ public class RepositoryTests {
 			fail();
 		}
 		Department dept = optional.get();
-		Employee employee = new Employee("Sven", "Erikson", "sven@abc.com", "1234567890");
+		Employee employee = new Employee("Sven", "Erikson", "sven@abc.com", "1234567890", "abc123");
 		employee.setDept(dept);
 		Employee savedEmployee = employeeRepository.save(employee);
 		log.debug(savedEmployee.toString());
-		Employee getEmployeeByLastName = employeeRepository.findByLastName("Erikson").get(0);
-		assertEquals(savedEmployee, getEmployeeByLastName);
+		Employee getEmployeeByEmail = employeeRepository.findByEmail("sven@abc.com");
+		assertEquals(savedEmployee, getEmployeeByEmail);
 	}
 	
 }

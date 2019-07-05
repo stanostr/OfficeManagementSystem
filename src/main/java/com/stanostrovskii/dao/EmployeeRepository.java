@@ -8,6 +8,6 @@ import com.stanostrovskii.model.Department;
 import com.stanostrovskii.model.Employee;
 
 public interface EmployeeRepository extends CrudRepository<Employee, Long> {
-	List<Employee> findByLastName(String lastName);
+	Employee findByEmail(String email);
 	List<Employee> findByDept(Department department);
 }
