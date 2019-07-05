@@ -59,8 +59,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				// requests to these paths require authentication
 				.authorizeRequests().antMatchers("/employees", "/departments").authenticated()
 				// requests to these paths require admin privileges
-				.antMatchers("/employees", "/departments").access("hasRole('ROLE_ADMIN')").antMatchers("/").permitAll()
-				.and()
+				.antMatchers("/employees", "/departments").access("hasRole('ROLE_ADMIN')")
+				//all other requests (e.g. login page) are open to all
+				.antMatchers("/").permitAll().and()
 				// session won't be used to store user's state.
 				.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint()).and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);

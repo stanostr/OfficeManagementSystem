@@ -1,17 +1,13 @@
 package com.stanostrovskii.model;
 
-import java.io.Serializable;
-
-public class AuthenticationRequest implements Serializable {
-
-	private static final long serialVersionUID = 1L;
+public class LoginRequest {
 	private String username;
 	private String password;
 
-	public AuthenticationRequest() {
+	public LoginRequest() {
 	}
 
-	public AuthenticationRequest(String username, String password) {
+	public LoginRequest(String username, String password) {
 		this.setUsername(username);
 		this.setPassword(password);
 	}

@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.stanostrovskii.model.AuthenticationRequest;
-import com.stanostrovskii.model.JwtTokenResponse;
+import com.stanostrovskii.model.LoginRequest;
+import com.stanostrovskii.model.LoginResponse;
 import com.stanostrovskii.security.JwtTokenService;
 
 import io.swagger.annotations.Api;
@@ -38,13 +38,15 @@ public class LoginController {
 	private UserDetailsService userDetailsService;
 
 	@PostMapping
-	public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest)
+	public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest)
 			throws Exception {
 		authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 		UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+		//TODO is there a way to make this prettier?
+		String role = userDetails.getAuthorities().iterator().next().getAuthority();
 		String token = jwtTokenUtil.generateToken(userDetails);
 		log.info("Successfully authenticated user with username " + authenticationRequest.getUsername());
-		return new ResponseEntity<JwtTokenResponse>(new JwtTokenResponse(token), HttpStatus.OK);
+		return new ResponseEntity<LoginResponse>(new LoginResponse(token, role), HttpStatus.OK);
 	}
 
 	private void authenticate(String username, String password) throws Exception {
