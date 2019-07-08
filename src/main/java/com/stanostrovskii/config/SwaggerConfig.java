@@ -1,6 +1,7 @@
 package com.stanostrovskii.config;
 
 import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -25,32 +26,30 @@ import static com.google.common.base.Predicates.or;
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
-    @Value("${swagger.contact.name}")  
-    private String contactName;  
-   
-    @Value("${swagger.contact.url}")  
-    private String contactURL;  
-   
-    @Value("${swagger.contact.email}")  
-    private String contactEmail;  
+	@Value("${swagger.contact.name}")
+	private String contactName;
+
+	@Value("${swagger.contact.url}")
+	private String contactURL;
+
+	@Value("${swagger.contact.email}")
+	private String contactEmail;
 	private List<Parameter> listDocketParameters;
 
 	public SwaggerConfig() {
-		Parameter oAuthHeader = new ParameterBuilder().name("Authorization")
-				.description("JWT Bearer Token").modelRef(new ModelRef("string")).parameterType("header").build();
+		Parameter oAuthHeader = new ParameterBuilder().name("Authorization").description("JWT Bearer Token")
+				.modelRef(new ModelRef("string")).parameterType("header").build();
 		listDocketParameters = new ArrayList<Parameter>();
 		listDocketParameters.add(oAuthHeader);
 	}
 
 	@Bean
 	public Docket appDocket() {
-		return new Docket(DocumentationType.SWAGGER_2)
-				.globalOperationParameters(listDocketParameters)
-				.groupName("public-api").apiInfo(apiInfo()).select()
-				.paths(postPaths()).build();
+		return new Docket(DocumentationType.SWAGGER_2).globalOperationParameters(listDocketParameters)
+				.groupName("public-api").apiInfo(apiInfo()).select().paths(postPaths()).build();
 	}
 
-	private ApiInfo apiInfo() { 
+	private ApiInfo apiInfo() {
 		return new ApiInfoBuilder().title("e-Office Management Suite API")
 				.description("API reference for e-Office Management Suite")
 				.termsOfServiceUrl("https://github.com/stanostr/OfficeManagementSystem/blob/master/README.md")
@@ -58,7 +57,7 @@ public class SwaggerConfig {
 	}
 
 	private Predicate<String> postPaths() {
-		return or(or(regex("/employees.*"), regex("/departments.*")), regex("/login"));
+		return or(or(regex("/admin.*"), regex("/employee.*")), regex("/login"));
 	}
 
 }

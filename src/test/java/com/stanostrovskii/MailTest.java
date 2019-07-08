@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.stanostrovskii.model.Employee;
 import com.stanostrovskii.service.EmailService;
 import com.stanostrovskii.util.EmployeeEmailUtil;
 
@@ -18,7 +19,7 @@ public class MailTest {
 
 	@Test
 	public void mailTest() {
-		EmployeeEmailUtil.sendEmail(90L, "Silky", "Ostrovskii", "silky.gajwani@yahoo.com", "didyoudoyourrussiantoday?",
+		EmployeeEmailUtil.sendNewEmployeeEmail(new Employee("Silky", "Ostrovskii", "silky.gajwani@yahoo.com", "868567547", "abc123"),
 				emailService);
 	}
 

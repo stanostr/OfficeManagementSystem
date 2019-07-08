@@ -13,12 +13,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-/**
- * After much thought, I decided that persisting admin information in a separate
- * table is the simplest, albeit not the most elegant, way to manage security.
- * 
- * @author Stan
- */
+import sun.security.util.Password;
+
 @Entity
 @Table(name = "eoffice_admin")
 public class Admin implements UserDetails {
@@ -36,15 +32,18 @@ public class Admin implements UserDetails {
 	private String username;
 	@Column(nullable = false)
 	private String password;
+	@Column(nullable = false)
+	private String email;
 
 	public Admin() {
 	}
 
-	public Admin(String firstName, String lastName, String username, String password) {
+	public Admin(String firstName, String lastName, String username, String password, String email) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.username = username;
 		this.password = password;
+		this.email = email;
 	}
 
 	@Override
@@ -80,5 +79,41 @@ public class Admin implements UserDetails {
 	@Override
 	public boolean isEnabled() {
 		return true;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 }

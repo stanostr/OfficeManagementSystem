@@ -57,9 +57,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		// TODO make crsf work.
 		http.csrf().disable()
 				// requests to these paths require authentication
-				.authorizeRequests().antMatchers("/employees", "/departments").authenticated()
+				.authorizeRequests().antMatchers("/admin/**", "/employee/**").authenticated()
 				// requests to these paths require admin privileges
-				.antMatchers("/employees", "/departments").access("hasRole('ROLE_ADMIN')")
+				.antMatchers("/admin/**").access("hasRole('ROLE_ADMIN')")
+				//requests to these paths require user privileges? 
+				.antMatchers("/employee/**").access("hasRole('ROLE_USER')")
 				//all other requests (e.g. login page) are open to all
 				.antMatchers("/").permitAll().and()
 				// session won't be used to store user's state.
