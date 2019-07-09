@@ -2,20 +2,22 @@ package com.stanostrovskii.util;
 
 import java.text.SimpleDateFormat;
 
+import com.google.common.math.Stats;
 import com.stanostrovskii.model.Employee;
+import com.stanostrovskii.model.Room;
 import com.stanostrovskii.model.Task;
 import com.stanostrovskii.service.EmailService;
 
 /**
- * Util to send e-mail message to newly registered employees.
+ * Util to send e-mail messages to employees and admins.
  * @author Stan
  */
 public class EmployeeEmailUtil {
 	public static void sendNewEmployeeEmail(Employee employee, EmailService emailService) {
 		String subject = "Welcome on board " + employee.getFirstName() + " " + employee.getLastName();
 		String message = "Welcome to E-office Corp. " + employee.getFirstName() + ", your details are below: "
-				+ "\n\n Employee ID: "+ employee.getId() + "\n Employee login: " + employee.getEmail() + "\n Password: " + 
-				employee.getPassword() + "\n\n" + "Regards, \n Admin Team \n E-Office Corp.";
+				+ "\n\n Employee ID: "+ employee.getId() + "\nEmployee login: " + employee.getEmail() + "\nPassword: " + 
+				employee.getPassword() + "\n\n" + "Regards, \nAdmin Team \nE-Office Corp.";
 		emailService.sendSimpleMessage(employee.getEmail(), subject, message);
 	}
 	
