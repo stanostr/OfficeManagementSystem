@@ -7,7 +7,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -101,5 +103,17 @@ public class AdminRoomController {
 			return new ResponseEntity<>(room, HttpStatus.OK);
 		}
 		return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+	}
+	
+	@DeleteMapping(value = "/meeting/{id}")
+	public void deleteMeetingRoom(@PathVariable String id)
+	{
+		meetingRepository.deleteById(Long.parseLong(id));
+	}
+	
+	@DeleteMapping(value = "/training/{id}")
+	public void deleteTrainingRoom(@PathVariable String id)
+	{
+		trainingRepository.deleteById(Long.parseLong(id));
 	}
 }
