@@ -24,6 +24,7 @@ import com.stanostrovskii.model.Employee;
 import com.stanostrovskii.model.MeetingRoom;
 import com.stanostrovskii.model.RoomReservation;
 import com.stanostrovskii.model.TrainingRoom;
+import com.stanostrovskii.model.RoomReservation.Status;
 import com.stanostrovskii.service.EmailService;
 
 import io.swagger.annotations.Api;
@@ -68,7 +69,6 @@ public class EmployeeRoomController {
 	{
 		List<RoomReservation> reservations = reservationRepository.findByRoom(reservation.getRoom());
 		
-		log.info("We have " + reservations.size() + " reservations for this room");
 		for(RoomReservation r: reservations)
 		{
 			if(!r.getStartTime().after(reservation.getEndTime()) && !r.getStartTime().before(reservation.getStartTime()) ||
@@ -82,6 +82,7 @@ public class EmployeeRoomController {
 			Employee me = (Employee) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			reservation.setEmployee(me);
 		}
+		reservation.setStatus(Status.PENDING); //employees can only make pending reservations
 		reservation = reservationRepository.save(reservation);
 		reservation.setEmployee(null);
 		return new ResponseEntity<RoomReservation>(reservation, HttpStatus.CREATED);
