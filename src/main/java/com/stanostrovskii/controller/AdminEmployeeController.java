@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,16 +36,13 @@ import com.stanostrovskii.util.EmployeeEmailUtil;
 
 import io.swagger.annotations.Api;
 
-/*TODO I want to split this Controller into two controllers. 
- * One for methods pertaining to employees. 
- * One for methods pertaining to departments.
-*/
+
 @RestController
 @RequestMapping(path = "/admin", produces = "application/json")
-@Api(tags = { "Admin" })
-public class AdminController {
+@Api(tags = { "Admin: Employee and Dept. Management" })
+public class AdminEmployeeController {
 
-	private static final Logger log = LoggerFactory.getLogger(AdminController.class);
+	private static final Logger log = LoggerFactory.getLogger(AdminEmployeeController.class);
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -54,9 +52,6 @@ public class AdminController {
 
 	@Autowired
 	private DepartmentRepository departmentRepository;
-
-	@Autowired
-	private TaskRepository taskRepository;
 
 	@Autowired
 	private EmailService emailService;
@@ -152,84 +147,6 @@ public class AdminController {
 	@PutMapping(value = "/departments")
 	public Department updateDepartment(@RequestBody Department department) {
 		return departmentRepository.save(department);
-	}
-
-	@GetMapping("/employees/{id}/tasks")
-	public List<TaskForm> getTasksByEmployeeId(@PathVariable String id) {
-		List<Task> tasks = findTasksByEmployeeId(Long.parseLong(id));
-		List<TaskForm> taskForms = new ArrayList<>();
-		for (Task task : tasks) {
-			taskForms.add(TaskForm.fromTask(task));
-		}
-		return taskForms;
-	}
-
-	@PostMapping("/employees/{id}/tasks")
-	public ResponseEntity<TaskForm> assignTask(@PathVariable String id, @RequestBody TaskForm taskForm) {
-		Optional<Employee> optional = employeeRepository.findById(Long.parseLong(id));
-		if (!optional.isPresent())
-			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-		Employee employee = optional.get();
-		Admin me = (Admin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if (taskForm.getStartDate() == null)
-			taskForm.setStartDate(new Date());
-
-		Task task = taskForm.toTask();
-		task.setEmployee(employee);
-		task.setAdmin(me);
-		task = taskRepository.save(task);
-		EmployeeEmailUtil.sendNewTaskEmail(employee, task, emailService);
-		return new ResponseEntity<>(taskForm, HttpStatus.CREATED);
-	}
-
-	@DeleteMapping("/employees/{id}/tasks")
-	public void deleteTasksByEmployee(@PathVariable String id) {
-		List<Task> tasks = findTasksByEmployeeId(Long.parseLong(id));
-		taskRepository.deleteAll(tasks);
-	}
-
-	@DeleteMapping("/tasks/{id}")
-	public void deleteTaskById(@PathVariable String id) {
-		taskRepository.deleteById(Long.parseLong(id));
-	}
-
-	@PutMapping("/tasks/{id}")
-	public ResponseEntity<TaskForm> updateTask(@PathVariable String id, @RequestBody TaskForm patch) {
-		Optional<Task> optional = taskRepository.findById(Long.parseLong(id));
-		if (!optional.isPresent())
-			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-		Task task = optional.get();
-		//Note that you cannot change the employee Id. 
-		//If this is required just delete and make new task
-		if (patch.isCompleted() != task.isCompleted()) {
-			task.setCompleted(task.isCompleted());
-		}
-		if (patch.getDescription() != null) {
-			task.setDescription(patch.getDescription());
-		}
-		if (patch.getDueDate() != null) {
-			task.setDueDate(patch.getDueDate());
-		}
-		if (patch.getStartDate() != null) {
-			task.setStartDate(patch.getStartDate());
-		}
-		taskRepository.save(task);
-		return new ResponseEntity<TaskForm> (patch, HttpStatus.OK);
-	}
-
-	private List<Task> findTasksByEmployeeId(Long employeeId) {
-		Optional<Employee> optional = employeeRepository.findById(employeeId);
-		if (!optional.isPresent())
-			return null;
-		Employee employee = optional.get();
-		return taskRepository.findByEmployee(employee);
-	}
-
-	@GetMapping("/account")
-	public Admin getAccountDetails() {
-		Admin me = (Admin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		me.setPassword(null);
-		return me;
 	}
 
 	private void encodePass(Employee employee) {
