@@ -55,6 +55,22 @@ public class AdminRoomController {
 		return list;
 	}
 	
+	@GetMapping("/training/{id}")
+	public ResponseEntity<TrainingRoom> getTrainingRoomById(@PathVariable Long id)
+	{
+		Optional<TrainingRoom> optRoom = trainingRepository.findById(id);
+		if(!optRoom.isPresent()) return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+		return new ResponseEntity<TrainingRoom>(optRoom.get(), HttpStatus.OK);
+	}
+	
+	@GetMapping("/meeting/{id}")
+	public ResponseEntity<MeetingRoom> getMeetingRoomById(@PathVariable Long id)
+	{
+		Optional<MeetingRoom> optRoom = meetingRepository.findById(id);
+		if(!optRoom.isPresent()) return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+		return new ResponseEntity<MeetingRoom>(optRoom.get(), HttpStatus.OK);
+	}
+	
 	@PostMapping("/training")
 	@ResponseStatus(HttpStatus.CREATED)
 	public TrainingRoom addTrainingRoom(@RequestBody TrainingRoom trainingRoom)
@@ -69,9 +85,9 @@ public class AdminRoomController {
 		return meetingRepository.save(meetingRoom);
 	}
 	
-	@PutMapping(value = "/training")
-	public ResponseEntity<TrainingRoom> updateTrainingRoom(@RequestBody TrainingRoom patch) {
-		Optional<TrainingRoom> optRoom = trainingRepository.findById(patch.getId());
+	@PutMapping(value = "/training/{id}")
+	public ResponseEntity<TrainingRoom> updateTrainingRoom(@PathVariable String id, @RequestBody TrainingRoom patch) {
+		Optional<TrainingRoom> optRoom = trainingRepository.findById(Long.parseLong(id));
 		if (optRoom.isPresent()) {
 			TrainingRoom room = optRoom.get();
 			if (patch.getName() != null) {
@@ -88,9 +104,9 @@ public class AdminRoomController {
 		return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 	}
 	
-	@PutMapping(value = "/meeting")
-	public ResponseEntity<MeetingRoom> updateMeetingRoom(@RequestBody MeetingRoom patch) {
-		Optional<MeetingRoom> optRoom = meetingRepository.findById(patch.getId());
+	@PutMapping(value = "/meeting/{id}")
+	public ResponseEntity<MeetingRoom> updateMeetingRoom(@PathVariable String id, @RequestBody MeetingRoom patch) {
+		Optional<MeetingRoom> optRoom = meetingRepository.findById(Long.parseLong(id));
 		if (optRoom.isPresent()) {
 			MeetingRoom room = optRoom.get();
 			if (patch.getName() != null) {

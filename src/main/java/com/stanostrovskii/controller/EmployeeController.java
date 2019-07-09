@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.stanostrovskii.dao.MeetingRoomRepository;
 import com.stanostrovskii.dao.TaskRepository;
+import com.stanostrovskii.dao.TrainingRoomRepository;
 import com.stanostrovskii.model.Admin;
 import com.stanostrovskii.model.Employee;
 import com.stanostrovskii.model.Task;
@@ -30,6 +32,7 @@ public class EmployeeController {
 
 	@Autowired
 	private TaskRepository taskRepository;
+
 	@Autowired
 	private EmailService emailService;
 
