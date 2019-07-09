@@ -1,4 +1,4 @@
-package com.stanostrovskii.model;
+package com.stanostrovskii.model.rooms;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -15,6 +15,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.apache.commons.lang3.time.DateUtils;
+
+import com.stanostrovskii.model.Employee;
 
 @Entity
 public class RoomReservation {
@@ -44,8 +46,8 @@ public class RoomReservation {
 	private Status status;
 
 	public RoomReservation() {
-		this.startTime = DateUtils.truncate(new Date(), Calendar.HOUR);
-		this.endTime = DateUtils.ceiling(new Date(), Calendar.HOUR);
+		this.startTime = new Date();
+		this.endTime = new Date();
 		status = Status.PENDING;
 	}
 

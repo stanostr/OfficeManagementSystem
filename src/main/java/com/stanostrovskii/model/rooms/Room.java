@@ -1,4 +1,4 @@
-package com.stanostrovskii.model;
+package com.stanostrovskii.model.rooms;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

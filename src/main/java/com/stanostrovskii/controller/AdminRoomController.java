@@ -21,8 +21,8 @@ import com.stanostrovskii.dao.EmployeeRepository;
 import com.stanostrovskii.dao.MeetingRoomRepository;
 import com.stanostrovskii.dao.TrainingRoomRepository;
 import com.stanostrovskii.model.Employee;
-import com.stanostrovskii.model.MeetingRoom;
-import com.stanostrovskii.model.TrainingRoom;
+import com.stanostrovskii.model.rooms.MeetingRoom;
+import com.stanostrovskii.model.rooms.TrainingRoom;
 
 import io.swagger.annotations.Api;
 

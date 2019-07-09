@@ -14,17 +14,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.stanostrovskii.dao.MeetingRoomRepository;
 import com.stanostrovskii.dao.RoomReservationRepository;
 import com.stanostrovskii.dao.TrainingRoomRepository;
 import com.stanostrovskii.model.Employee;
-import com.stanostrovskii.model.MeetingRoom;
-import com.stanostrovskii.model.RoomReservation;
-import com.stanostrovskii.model.TrainingRoom;
-import com.stanostrovskii.model.RoomReservation.Status;
+import com.stanostrovskii.model.rooms.EmployeeRoomReservationRequest;
+import com.stanostrovskii.model.rooms.MeetingRoom;
+import com.stanostrovskii.model.rooms.Room;
+import com.stanostrovskii.model.rooms.RoomReservation;
+import com.stanostrovskii.model.rooms.TrainingRoom;
+import com.stanostrovskii.model.rooms.RoomReservation.Status;
 import com.stanostrovskii.service.EmailService;
 
 import io.swagger.annotations.Api;
@@ -65,34 +66,57 @@ public class EmployeeRoomController {
 	}
 	
 	@PostMapping("/training/reserve")
-	public ResponseEntity<RoomReservation> reserveTrainingRoom(@RequestBody RoomReservation reservation)
+	public ResponseEntity<EmployeeRoomReservationRequest> reserveTrainingRoom(@RequestBody EmployeeRoomReservationRequest request)
 	{
-		List<RoomReservation> reservations = reservationRepository.findByRoom(reservation.getRoom());
-		
-		for(RoomReservation r: reservations)
-		{
-			if(!r.getStartTime().after(reservation.getEndTime()) && !r.getStartTime().before(reservation.getStartTime()) ||
-					!r.getEndTime().after(reservation.getEndTime()) && !r.getEndTime().before(reservation.getStartTime())) 
-			{
-				log.info("Time overlap found!");
-				return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-			}
-		}
-		if(reservation.getId()==null) {
-			Employee me = (Employee) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			reservation.setEmployee(me);
-		}
-		reservation.setStatus(Status.PENDING); //employees can only make pending reservations
-		reservation = reservationRepository.save(reservation);
-		reservation.setEmployee(null);
-		return new ResponseEntity<RoomReservation>(reservation, HttpStatus.CREATED);
+		Room room = trainingRepository.findById(request.getRoomId()).get();
+		return processReservationRequest(request, room);
 	}
 	
-	//TODO 
-	@GetMapping("/training/reserve/{id}")
+	@PostMapping("/meeting/reserve")
+	public ResponseEntity<EmployeeRoomReservationRequest> reserveMeetingRoom(@RequestBody EmployeeRoomReservationRequest request)
+	{
+		Room room = meetingRepository.findById(request.getRoomId()).get();
+		return processReservationRequest(request, room);
+	}
+
+	private ResponseEntity<EmployeeRoomReservationRequest> processReservationRequest(
+			EmployeeRoomReservationRequest request, Room room) {
+		//rejects immediately if the request interferes with another approved request
+		List<RoomReservation> reservations = reservationRepository.findByRoomAndStatus(room, Status.APPROVED);
+		for(RoomReservation r: reservations)
+		{
+			if(r.getStartTime().before(request.getEndTime()) && !r.getStartTime().before(request.getStartTime()) ||
+					!r.getEndTime().after(request.getEndTime()) && r.getEndTime().after(request.getStartTime())) 
+			{
+				//TODO change this to a proper error message response
+				log.info("Time overlap encountered!");
+				return new ResponseEntity<>(request, HttpStatus.BAD_REQUEST);
+			}
+		}
+		RoomReservation reservation = new RoomReservation();
+		Employee me = (Employee) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		reservation.setEmployee(me);
+		reservation.setStartTime(request.getStartTime());
+		reservation.setEndTime(request.getEndTime());
+		reservation.setRoom(room);
+		reservationRepository.save(reservation);
+		return new ResponseEntity<EmployeeRoomReservationRequest>(request, HttpStatus.CREATED);
+	}
+	
+	@GetMapping("/reservations")
+	public List<RoomReservation> getAllReservationsFromEmployee()
+	{
+		Employee me = (Employee) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		List<RoomReservation> reservations = reservationRepository.findByEmployee(me);
+		reservations.forEach(r->r.setEmployee(null));
+		return reservations;
+	}
+
+	@GetMapping("/reservations/{id}")
 	public ResponseEntity<RoomReservation> getReservation(@PathVariable Long id)
 	{
 		RoomReservation reservation = reservationRepository.findById(id).get();
+		reservation.setEmployee(null); //do not transmit employee info
 		return new ResponseEntity<RoomReservation>(reservation, HttpStatus.OK);
 	}
 }

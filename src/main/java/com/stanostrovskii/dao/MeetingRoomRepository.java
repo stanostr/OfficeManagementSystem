@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
 
-import com.stanostrovskii.model.MeetingRoom;
+import com.stanostrovskii.model.rooms.MeetingRoom;
 
 public interface MeetingRoomRepository extends CrudRepository<MeetingRoom, Long>{
 	List<MeetingRoom> findByCapacityGreaterThan(int capacity);

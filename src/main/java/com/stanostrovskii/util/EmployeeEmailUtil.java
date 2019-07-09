@@ -2,10 +2,9 @@ package com.stanostrovskii.util;
 
 import java.text.SimpleDateFormat;
 
-import com.google.common.math.Stats;
 import com.stanostrovskii.model.Employee;
-import com.stanostrovskii.model.Room;
 import com.stanostrovskii.model.Task;
+import com.stanostrovskii.model.rooms.RoomReservation;
 import com.stanostrovskii.service.EmailService;
 
 /**
@@ -43,5 +42,23 @@ public class EmployeeEmailUtil {
 				task.getEmployee().getFirstName() + " " + task.getEmployee().getLastName() + "\n" +
 				"Please check the website for details.";
 		emailService.sendSimpleMessage(adminEmail, subject, message);
+	}
+	
+	public static void sendReservationRejectionEmail(RoomReservation reservation, EmailService emailService)
+	{
+		Employee employee = reservation.getEmployee();
+		String employeeEmail = employee.getEmail();
+		String subject = "E-Office Corp: Reservation Request for room rejected";
+		String message = "Dear " + employee.getFirstName() + ",\n" +
+				"An admin has rejected your reservation request for Room: " + reservation.getRoom().getName() +
+				".\nPlease contact us if you have any questions\n\nRegards, \n Admin Team \n E-Office Corp.";
+		emailService.sendSimpleMessage(employeeEmail, subject, message);
+	}
+	
+	public static void sendReservationApprovedEmail(RoomReservation reservation, EmailService emailService)
+	{
+		String employeeEmail = reservation.getEmployee().getEmail();
+		String subject = "E-Office Corp: Reservation Request for room approved";
+		String message;
 	}
 }
