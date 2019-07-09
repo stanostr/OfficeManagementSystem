@@ -73,7 +73,10 @@ public class EmployeeRoomController {
 		{
 			if(!r.getStartTime().after(reservation.getEndTime()) && !r.getStartTime().before(reservation.getStartTime()) ||
 					!r.getEndTime().after(reservation.getEndTime()) && !r.getEndTime().before(reservation.getStartTime())) 
+			{
+				log.info("Time overlap found!");
 				return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+			}
 		}
 		if(reservation.getId()==null) {
 			Employee me = (Employee) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
