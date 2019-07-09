@@ -1,5 +1,6 @@
 package com.stanostrovskii.model;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -11,8 +12,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.apache.commons.lang3.time.DateUtils;
+
 @Entity
 public class RoomReservation {
+	
 	@Id
 	@GeneratedValue
 	@Column(name = "reservation_id")
@@ -34,8 +38,9 @@ public class RoomReservation {
 	public RoomReservation() {}
 	public RoomReservation(Date startTime, Date endTime)
 	{
-		this.startTime = startTime;
-		this.endTime = endTime;
+		//for simplicity, reservations are by hour
+		this.startTime = DateUtils.truncate(startTime, Calendar.HOUR);
+		this.endTime = DateUtils.ceiling(startTime, Calendar.HOUR);
 	}
 	public Long getId() {
 		return id;
@@ -53,13 +58,15 @@ public class RoomReservation {
 		return startTime;
 	}
 	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
+		//truncate to nearest hour
+		this.startTime = DateUtils.truncate(startTime, Calendar.HOUR);
 	}
 	public Date getEndTime() {
 		return endTime;
 	}
 	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
+		//rounds up to nearest hour
+		this.endTime = DateUtils.ceiling(startTime, Calendar.HOUR);
 	}
 	public Employee getEmployee() {
 		return employee;
