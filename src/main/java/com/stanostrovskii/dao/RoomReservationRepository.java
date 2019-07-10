@@ -11,5 +11,6 @@ import com.stanostrovskii.model.rooms.RoomReservation;
 public interface RoomReservationRepository extends CrudRepository<RoomReservation, Long> {
 	List<RoomReservation> findByRoom(Room room);
 	List<RoomReservation> findByRoomAndStatus(Room room, RoomReservation.Status status);
+	List<RoomReservation> findByStatus(RoomReservation.Status status);
 	List<RoomReservation> findByEmployee(Employee employee);
 }

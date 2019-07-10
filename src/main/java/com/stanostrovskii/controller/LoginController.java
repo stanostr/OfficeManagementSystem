@@ -11,7 +11,6 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +26,7 @@ import io.swagger.annotations.Api;
 @RequestMapping("/login")
 @Api(tags = { "Login" })
 public class LoginController {
-	
+
 	private static final Logger log = LoggerFactory.getLogger(LoginController.class);
 
 	@Autowired
@@ -42,7 +41,7 @@ public class LoginController {
 			throws Exception {
 		authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 		UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-		//TODO is there a way to make this prettier?
+		// TODO is there a way to make this prettier?
 		String role = userDetails.getAuthorities().iterator().next().getAuthority();
 		String token = jwtTokenUtil.generateToken(userDetails);
 		log.info("Successfully authenticated user with username " + authenticationRequest.getUsername());

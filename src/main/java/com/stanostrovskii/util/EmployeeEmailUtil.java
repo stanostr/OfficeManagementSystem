@@ -46,19 +46,37 @@ public class EmployeeEmailUtil {
 	
 	public static void sendReservationRejectionEmail(RoomReservation reservation, EmailService emailService)
 	{
+		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/YYYY");
+		SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+
 		Employee employee = reservation.getEmployee();
 		String employeeEmail = employee.getEmail();
 		String subject = "E-Office Corp: Reservation Request for room rejected";
 		String message = "Dear " + employee.getFirstName() + ",\n" +
-				"An admin has rejected your reservation request for Room: " + reservation.getRoom().getName() +
-				".\nPlease contact us if you have any questions\n\nRegards, \n Admin Team \n E-Office Corp.";
+				"An admin has rejected your reservation request.\nReservation Details:\nRoom: " + reservation.getRoom().getName() +
+				"\nDate: "+ dateFormat.format(reservation.getStartTime()) +
+				"\nFrom: "+ timeFormat.format(reservation.getStartTime()) +
+				"\nTo: "+ timeFormat.format(reservation.getEndTime()) +
+				"\nStatus: REJECTED"+
+				"\nPlease contact us if you have any questions.\n\nRegards, \n Admin Team \n E-Office Corp.";
 		emailService.sendSimpleMessage(employeeEmail, subject, message);
 	}
 	
 	public static void sendReservationApprovedEmail(RoomReservation reservation, EmailService emailService)
 	{
+		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/YYYY");
+		SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+
+		Employee employee = reservation.getEmployee();
 		String employeeEmail = reservation.getEmployee().getEmail();
 		String subject = "E-Office Corp: Reservation Request for room approved";
-		String message;
+		String message = "Dear " + employee.getFirstName() + ",\n" +
+				"An admin has approved your reservation request.\nReservation Details:\nRoom: " + reservation.getRoom().getName() +
+				"\nDate: "+ dateFormat.format(reservation.getStartTime()) +
+				"\nFrom: "+ timeFormat.format(reservation.getStartTime()) +
+				"\nTo: "+ timeFormat.format(reservation.getEndTime()) +
+				"\nStatus: APPROVED"+
+				"\nPlease contact us if you have any further questions.\n\nRegards, \n Admin Team \n E-Office Corp.";
+		emailService.sendSimpleMessage(employeeEmail, subject, message);
 	}
 }

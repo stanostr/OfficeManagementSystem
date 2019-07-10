@@ -14,15 +14,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.stanostrovskii.dao.EmployeeRepository;
 import com.stanostrovskii.dao.MeetingRoomRepository;
+import com.stanostrovskii.dao.RoomReservationRepository;
 import com.stanostrovskii.dao.TrainingRoomRepository;
-import com.stanostrovskii.model.Employee;
+import com.stanostrovskii.model.SingleMessageResponse;
 import com.stanostrovskii.model.rooms.MeetingRoom;
+import com.stanostrovskii.model.rooms.RoomReservation;
+import com.stanostrovskii.model.rooms.RoomReservation.Status;
+import com.stanostrovskii.service.EmailService;
 import com.stanostrovskii.model.rooms.TrainingRoom;
+import com.stanostrovskii.util.EmployeeEmailUtil;
 
 import io.swagger.annotations.Api;
 
@@ -30,14 +35,18 @@ import io.swagger.annotations.Api;
 @RequestMapping(path = "/admin", produces = "application/json")
 @Api(tags = { "Admin: Room Management" })
 public class AdminRoomController {
-	@Autowired
-	private EmployeeRepository employeeRepository;
 	
 	@Autowired
 	private TrainingRoomRepository trainingRepository;
 	
 	@Autowired
 	private MeetingRoomRepository meetingRepository;
+	
+	@Autowired
+	private RoomReservationRepository reservationRepository;
+	
+	@Autowired
+	private EmailService emailService;
 	
 	@GetMapping("/training")
 	public List<TrainingRoom> getAllTrainingRooms()
@@ -131,5 +140,57 @@ public class AdminRoomController {
 	public void deleteTrainingRoom(@PathVariable String id)
 	{
 		trainingRepository.deleteById(Long.parseLong(id));
+	}
+	
+	@GetMapping("/reservations")
+	public List<RoomReservation> allReservations()
+	{
+		List<RoomReservation> reservations = new ArrayList<RoomReservation>();
+		reservationRepository.findAll().forEach(reservations::add);
+		reservations.forEach(r->r.getEmployee().setPassword(null));
+		return reservations;
+	}
+	
+	@GetMapping("/reservations/{status}")
+	public List<RoomReservation> getReservationsByStatus(@PathVariable String status)
+	{
+		List<RoomReservation> reservations = reservationRepository.findByStatus(Status.valueOf(status));
+		reservations.forEach(r->r.getEmployee().setPassword(null));
+		return reservations;
+	}
+	
+	@PutMapping("/reservations/{id}")
+	public ResponseEntity<SingleMessageResponse> processReservation(@PathVariable Long id, @RequestParam String status)
+	{
+		try {
+			RoomReservation reservation = reservationRepository.findById(id).get();
+			Status newStatus =  Status.valueOf(status);
+			reservation.setStatus(newStatus);
+			reservationRepository.save(reservation);
+			if(newStatus.equals(Status.APPROVED))
+				EmployeeEmailUtil.sendReservationApprovedEmail(reservation, emailService);
+			else if(newStatus.equals(Status.REJECTED))
+				EmployeeEmailUtil.sendReservationRejectionEmail(reservation, emailService);
+			return new ResponseEntity<SingleMessageResponse>(new SingleMessageResponse("Reservation updated successfully."), HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<SingleMessageResponse>(new SingleMessageResponse("An error occurred processing request"), HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@DeleteMapping("/reservations/rejected")
+	public void deleteRejectedReservations()
+	{
+		List<RoomReservation> rejects = reservationRepository.findByStatus(Status.REJECTED);
+		reservationRepository.deleteAll(rejects);
+	}
+
+	@DeleteMapping("/reservations/{id}")
+	public void deleteById(@PathVariable Long id)
+	{
+		try {
+			reservationRepository.deleteById(id);
+		} catch (Exception e) {
+			//do nothing
+		}
 	}
 }

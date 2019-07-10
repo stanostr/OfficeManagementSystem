@@ -1,11 +1,11 @@
 package com.stanostrovskii.controller;
 
 import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.stanostrovskii.dao.MeetingRoomRepository;
 import com.stanostrovskii.dao.TaskRepository;
-import com.stanostrovskii.dao.TrainingRoomRepository;
-import com.stanostrovskii.model.Admin;
 import com.stanostrovskii.model.Employee;
 import com.stanostrovskii.model.Task;
 import com.stanostrovskii.model.TaskForm;
@@ -27,7 +24,7 @@ import io.swagger.annotations.Api;
 
 @RestController
 @RequestMapping("/employee")
-@Api(tags = {"Employee"})
+@Api(tags = { "Employee" })
 public class EmployeeController {
 
 	@Autowired
@@ -60,7 +57,7 @@ public class EmployeeController {
 		if (!optional.isPresent())
 			return;
 		Task task = optional.get();
-		if(!task.isCompleted())
+		if (!task.isCompleted())
 			EmployeeEmailUtil.sendCompletedTaskEmail(task, emailService);
 		task.setCompleted(true);
 		taskRepository.save(task);

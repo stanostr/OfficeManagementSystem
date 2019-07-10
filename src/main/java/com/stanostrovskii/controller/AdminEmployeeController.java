@@ -42,8 +42,6 @@ import io.swagger.annotations.Api;
 @Api(tags = { "Admin: Employee and Dept. Management" })
 public class AdminEmployeeController {
 
-	private static final Logger log = LoggerFactory.getLogger(AdminEmployeeController.class);
-
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
