@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.stanostrovskii.RequestException;
 import com.stanostrovskii.dao.MeetingRoomRepository;
 import com.stanostrovskii.dao.RoomReservationRepository;
 import com.stanostrovskii.dao.TrainingRoomRepository;
-import com.stanostrovskii.model.SingleMessageResponse;
 import com.stanostrovskii.model.rooms.MeetingRoom;
 import com.stanostrovskii.model.rooms.RoomReservation;
 import com.stanostrovskii.model.rooms.RoomReservation.Status;
@@ -68,7 +68,7 @@ public class AdminRoomController {
 	public ResponseEntity<TrainingRoom> getTrainingRoomById(@PathVariable Long id)
 	{
 		Optional<TrainingRoom> optRoom = trainingRepository.findById(id);
-		if(!optRoom.isPresent()) return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+		if(!optRoom.isPresent()) throw new RequestException(HttpStatus.NOT_FOUND, "Room not found.");
 		return new ResponseEntity<TrainingRoom>(optRoom.get(), HttpStatus.OK);
 	}
 	
@@ -76,7 +76,7 @@ public class AdminRoomController {
 	public ResponseEntity<MeetingRoom> getMeetingRoomById(@PathVariable Long id)
 	{
 		Optional<MeetingRoom> optRoom = meetingRepository.findById(id);
-		if(!optRoom.isPresent()) return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+		if(!optRoom.isPresent()) throw new RequestException(HttpStatus.NOT_FOUND, "Room not found.");
 		return new ResponseEntity<MeetingRoom>(optRoom.get(), HttpStatus.OK);
 	}
 	
@@ -110,7 +110,7 @@ public class AdminRoomController {
 			room = trainingRepository.save(room);
 			return new ResponseEntity<>(room, HttpStatus.OK);
 		}
-		return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+		throw new RequestException(HttpStatus.NOT_FOUND, "Room not found.");
 	}
 	
 	@PutMapping(value = "/meeting/{id}")
@@ -127,7 +127,7 @@ public class AdminRoomController {
 			room = meetingRepository.save(room);
 			return new ResponseEntity<>(room, HttpStatus.OK);
 		}
-		return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+		throw new RequestException(HttpStatus.NOT_FOUND, "Room not found.");
 	}
 	
 	@DeleteMapping(value = "/meeting/{id}")
@@ -160,7 +160,7 @@ public class AdminRoomController {
 	}
 	
 	@PutMapping("/reservations/{id}")
-	public ResponseEntity<SingleMessageResponse> processReservation(@PathVariable Long id, @RequestParam String status)
+	public void processReservation(@PathVariable Long id, @RequestParam String status)
 	{
 		try {
 			RoomReservation reservation = reservationRepository.findById(id).get();
@@ -171,9 +171,8 @@ public class AdminRoomController {
 				EmployeeEmailUtil.sendReservationApprovedEmail(reservation, emailService);
 			else if(newStatus.equals(Status.REJECTED))
 				EmployeeEmailUtil.sendReservationRejectionEmail(reservation, emailService);
-			return new ResponseEntity<SingleMessageResponse>(new SingleMessageResponse("Reservation updated successfully."), HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<SingleMessageResponse>(new SingleMessageResponse("An error occurred processing request"), HttpStatus.BAD_REQUEST);
+			throw new RequestException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred!");
 		}
 	}
 	
@@ -190,7 +189,7 @@ public class AdminRoomController {
 		try {
 			reservationRepository.deleteById(id);
 		} catch (Exception e) {
-			//do nothing
+			throw new RequestException(HttpStatus.NOT_FOUND, "Room not found.");
 		}
 	}
 }

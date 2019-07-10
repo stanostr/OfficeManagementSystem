@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 
+import com.stanostrovskii.RequestException;
 import com.stanostrovskii.dao.DepartmentRepository;
 import com.stanostrovskii.dao.EmployeeRepository;
 import com.stanostrovskii.model.Department;
@@ -64,7 +65,7 @@ public class AdminEmployeeController {
 			employee.setPassword(null); // to avoid transmitting encrypted password
 			return new ResponseEntity<>(employee, HttpStatus.OK);
 		}
-		return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+		throw new RequestException(HttpStatus.NOT_FOUND, "Employee not found.");
 	}
 
 	@PostMapping(value = "/employees")
@@ -107,7 +108,7 @@ public class AdminEmployeeController {
 				employee.setPassword(null);
 			return new ResponseEntity<>(employee, HttpStatus.OK);
 		}
-		return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+		throw new RequestException(HttpStatus.NOT_FOUND, "Employee not found.");
 	}
 
 	@DeleteMapping(value = "/employees")

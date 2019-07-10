@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.stanostrovskii.RequestException;
 import com.stanostrovskii.dao.EmployeeRepository;
 import com.stanostrovskii.dao.TaskRepository;
 import com.stanostrovskii.model.Admin;
@@ -58,7 +59,7 @@ public class AdminTaskController {
 	public ResponseEntity<TaskForm> assignTask(@PathVariable String id, @RequestBody TaskForm taskForm) {
 		Optional<Employee> optional = employeeRepository.findById(Long.parseLong(id));
 		if (!optional.isPresent())
-			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+			throw new RequestException(HttpStatus.NOT_FOUND, "Employee not found.");		
 		Employee employee = optional.get();
 		Admin me = (Admin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		if (taskForm.getStartDate() == null)
@@ -90,7 +91,7 @@ public class AdminTaskController {
 	public ResponseEntity<TaskForm> updateTask(@PathVariable String id, @RequestBody TaskForm patch) {
 		Optional<Task> optional = taskRepository.findById(Long.parseLong(id));
 		if (!optional.isPresent())
-			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+			throw new RequestException(HttpStatus.NOT_FOUND, "Task not found.");
 		Task task = optional.get();
 		// Note that you cannot change the employee Id.
 		// If this is required just delete and make new task
@@ -113,7 +114,7 @@ public class AdminTaskController {
 	private List<Task> findTasksByEmployeeId(Long employeeId) {
 		Optional<Employee> optional = employeeRepository.findById(employeeId);
 		if (!optional.isPresent())
-			return null;
+			throw new RequestException(HttpStatus.NOT_FOUND, "Employee not found.");
 		Employee employee = optional.get();
 		return taskRepository.findByEmployee(employee);
 	}

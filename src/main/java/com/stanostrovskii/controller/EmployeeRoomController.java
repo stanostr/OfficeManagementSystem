@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.stanostrovskii.RequestException;
 import com.stanostrovskii.dao.MeetingRoomRepository;
 import com.stanostrovskii.dao.RoomReservationRepository;
 import com.stanostrovskii.dao.TrainingRoomRepository;
@@ -33,8 +34,6 @@ import io.swagger.annotations.Api;
 @RequestMapping(path = "/employee", produces = "application/json")
 @Api(tags = { "Employee" })
 public class EmployeeRoomController {
-
-	private static final Logger log = LoggerFactory.getLogger(EmployeeRoomController.class);
 
 	@Autowired
 	private TrainingRoomRepository trainingRepository;
@@ -80,9 +79,7 @@ public class EmployeeRoomController {
 		for (RoomReservation r : reservations) {
 			if (r.getStartTime().before(request.getEndTime()) && !r.getStartTime().before(request.getStartTime())
 					|| !r.getEndTime().after(request.getEndTime()) && r.getEndTime().after(request.getStartTime())) {
-				// TODO change this to a proper error message response
-				log.info("Time overlap encountered!");
-				return new ResponseEntity<>(request, HttpStatus.BAD_REQUEST);
+				throw new RequestException(HttpStatus.BAD_REQUEST, "This time slot is unavailable!");
 			}
 		}
 		RoomReservation reservation = new RoomReservation();
