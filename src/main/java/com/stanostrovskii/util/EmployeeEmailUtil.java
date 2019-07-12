@@ -3,6 +3,7 @@ package com.stanostrovskii.util;
 import java.text.SimpleDateFormat;
 
 import com.stanostrovskii.model.Employee;
+import com.stanostrovskii.model.LeaveRequest;
 import com.stanostrovskii.model.Task;
 import com.stanostrovskii.model.rooms.RoomReservation;
 import com.stanostrovskii.service.EmailService;
@@ -78,5 +79,35 @@ public class EmployeeEmailUtil {
 				"\nStatus: APPROVED"+
 				"\nPlease contact us if you have any further questions.\n\nRegards, \n Admin Team \n E-Office Corp.";
 		emailService.sendSimpleMessage(employeeEmail, subject, message);
+	}
+
+	public static void sendLeaveApprovedEmail(LeaveRequest request, EmailService emailService) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/YYYY");
+		Employee employee = request.getEmployee();
+		String employeeEmail = request.getEmployee().getEmail();
+		String subject = "E-Office Corp: Leave Request approved";
+		String message = "Dear " + employee.getFirstName() + ",\n" +
+				"An admin has approved your leave request.\nRequest Details:\nLeave type: " + request.getType() +
+				"\nStart Date: "+ dateFormat.format(request.getStartDate()) +
+				"\nEnd Date: "+ dateFormat.format(request.getEndDate()) +
+				"\nReason: "+ request.getReason()  +
+				"\nStatus: APPROVED"+
+				"\n\nRegards, \n Admin Team \n E-Office Corp.";
+		emailService.sendSimpleMessage(employeeEmail, subject, message);
+	}
+
+	public static void sendLeaveRejectionEmail(LeaveRequest request, EmailService emailService) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/YYYY");
+		Employee employee = request.getEmployee();
+		String employeeEmail = request.getEmployee().getEmail();
+		String subject = "E-Office Corp: Leave Request declined";
+		String message = "Dear " + employee.getFirstName() + ",\n" +
+				"An admin has declined your leave request.\nRequest Details:\nLeave type: " + request.getType() +
+				"\nStart Date: "+ dateFormat.format(request.getStartDate()) +
+				"\nEnd Date: "+ dateFormat.format(request.getEndDate()) +
+				"\nReason: "+ request.getReason()  +
+				"\nStatus: DECLINED"+
+				"\nPlease contact us if you have any further questions.\n\nRegards, \n Admin Team \n E-Office Corp.";
+		emailService.sendSimpleMessage(employeeEmail, subject, message);		
 	}
 }

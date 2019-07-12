@@ -6,15 +6,22 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.stanostrovskii.RequestException;
+import com.stanostrovskii.dao.LeaveRepository;
 import com.stanostrovskii.dao.TaskRepository;
 import com.stanostrovskii.model.Employee;
+import com.stanostrovskii.model.LeaveRequest;
+import com.stanostrovskii.model.LeaveRequest.Status;
 import com.stanostrovskii.model.Task;
 import com.stanostrovskii.model.TaskForm;
 import com.stanostrovskii.service.EmailService;
@@ -26,7 +33,9 @@ import io.swagger.annotations.Api;
 @RequestMapping("/employee")
 @Api(tags = { "Employee" })
 public class EmployeeController {
-
+	@Autowired
+	private LeaveRepository leaveRepository;
+	
 	@Autowired
 	private TaskRepository taskRepository;
 
@@ -62,4 +71,35 @@ public class EmployeeController {
 		task.setCompleted(true);
 		taskRepository.save(task);
 	}
+	
+	@GetMapping("/leave_requests")
+	public List<LeaveRequest> viewMyRequests()
+	{
+		Employee thisEmployee = (Employee) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return leaveRepository.findByEmployee(thisEmployee);
+	}
+	
+	@GetMapping("/leave_requests/{id}")
+	public LeaveRequest viewRequestById(@PathVariable Long id)
+	{
+		Optional<LeaveRequest> optional = leaveRepository.findById(id);
+		if (!optional.isPresent())
+			throw new RequestException(HttpStatus.NOT_FOUND, "Leave request not found.");;
+		return optional.get();
+	}
+	
+	@PostMapping("/leave_requests")
+	public LeaveRequest postLeaveRequest(@RequestBody LeaveRequest request)
+	{
+		if(request.getEmployee()==null)
+		{
+			Employee thisEmployee = (Employee) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			request.setEmployee(thisEmployee);
+		}
+		request.setStatus(Status.PENDING); //employees can only make pending leave requests
+		request = leaveRepository.save(request);
+		request.getEmployee().setPassword(null);
+		return request;
+	}
+	
 }
