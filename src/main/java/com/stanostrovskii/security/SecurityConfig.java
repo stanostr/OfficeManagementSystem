@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -57,12 +58,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		// TODO make crsf work.
 		http.csrf().disable()
 				// requests to these paths require authentication
-				.authorizeRequests().antMatchers("/admin/**", "/employee/**").authenticated()
+				.authorizeRequests()
+				.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+				.antMatchers("/admin/**", "/employee/**").authenticated()
 				// requests to these paths require admin privileges
 				.antMatchers("/admin/**").access("hasRole('ROLE_ADMIN')")
-				//requests to these paths require user privileges? 
+				//requests to these paths require user privileges?
 				.antMatchers("/employee/**").access("hasRole('ROLE_USER')")
-				//all other requests (e.g. login page) are open to all
+				// all other requests (e.g. login page) are open to all
 				.antMatchers("/").permitAll().and()
 				// session won't be used to store user's state.
 				.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint()).and().sessionManagement()

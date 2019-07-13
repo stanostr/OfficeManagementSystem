@@ -1,6 +1,7 @@
 package com.stanostrovskii.controller;
 
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -9,6 +10,7 @@ import com.stanostrovskii.model.Admin;
 
 import io.swagger.annotations.Api;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping(path = "/admin", produces = "application/json")
 @Api(tags = { "Admin: Account"})
