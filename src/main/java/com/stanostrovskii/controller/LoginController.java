@@ -43,7 +43,6 @@ public class LoginController {
 			throws Exception {
 		authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 		UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-		// TODO is there a way to make this prettier?
 		String role = userDetails.getAuthorities().iterator().next().getAuthority();
 		String token = jwtTokenUtil.generateToken(userDetails);
 		log.info("Successfully authenticated user with username " + authenticationRequest.getUsername());

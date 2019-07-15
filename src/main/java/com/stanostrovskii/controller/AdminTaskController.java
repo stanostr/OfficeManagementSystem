@@ -48,8 +48,8 @@ public class AdminTaskController {
 	private EmailService emailService;
 
 	@GetMapping("/employees/{id}/tasks")
-	public List<TaskForm> getTasksByEmployeeId(@PathVariable String id) {
-		List<Task> tasks = findTasksByEmployeeId(Long.parseLong(id));
+	public List<TaskForm> getTasksByEmployeeId(@PathVariable Long id) {
+		List<Task> tasks = findTasksByEmployeeId(id);
 		List<TaskForm> taskForms = new ArrayList<>();
 		for (Task task : tasks) {
 			taskForms.add(TaskForm.fromTask(task));
@@ -111,6 +111,18 @@ public class AdminTaskController {
 		}
 		taskRepository.save(task);
 		return new ResponseEntity<TaskForm>(patch, HttpStatus.OK);
+	}
+	
+	@GetMapping("/tasks")
+	public List<TaskForm> getTasksByAdmin()
+	{
+		Admin me = (Admin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		List<Task> tasks = taskRepository.findByAdmin(me);
+		List<TaskForm> taskForms = new ArrayList<>();
+		for (Task task : tasks) {
+			taskForms.add(TaskForm.fromTask(task));
+		}
+		return taskForms;
 	}
 
 	private List<Task> findTasksByEmployeeId(Long employeeId) {
