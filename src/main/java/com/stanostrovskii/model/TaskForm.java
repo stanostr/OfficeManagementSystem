@@ -2,11 +2,13 @@ package com.stanostrovskii.model;
 
 import java.util.Date;
 
-/** Simplified object for transmitting tasks
+/** Adapter for transmitting tasks to/from API
  * @author Stan 
  */
 public class TaskForm {
+	private Long id;
 	private Long employeeId;
+	private String employeeName; //TODO transitive dependency?
 	private String taskName;
 	private String description;
 	private Date startDate;
@@ -48,10 +50,26 @@ public class TaskForm {
 	public void setEmployeeId(Long employeeId) {
 		this.employeeId = employeeId;
 	}
+	
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
+	public String getEmployeeName() {
+		return employeeName;
+	}
+	public void setEmployeeName(String employeeName) {
+		this.employeeName = employeeName;
+	}
 	public static TaskForm fromTask(Task task)
 	{
 		TaskForm taskForm = new TaskForm();
+		taskForm.setId(task.getId());
 		taskForm.setEmployeeId(task.getEmployee().getId());
+		taskForm.setEmployeeName(task.getEmployee().getFirstName() + " " 
+				+ task.getEmployee().getLastName());
 		taskForm.setTaskName(task.getTaskName());
 		taskForm.setDescription(task.getDescription());
 		taskForm.setCompleted(task.isCompleted());
@@ -70,4 +88,5 @@ public class TaskForm {
 		task.setCompleted(completed);
 		return task;
 	}
+
 }
