@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -38,6 +40,8 @@ import io.swagger.annotations.Api;
 @Api(tags = { "Admin: Task Management" })
 public class AdminTaskController {
 
+	private static final Logger log = LoggerFactory.getLogger(AdminTaskController.class);
+
 	@Autowired
 	private EmployeeRepository employeeRepository;
 
@@ -61,7 +65,7 @@ public class AdminTaskController {
 	public ResponseEntity<TaskForm> assignTask(@PathVariable String id, @RequestBody TaskForm taskForm) {
 		Optional<Employee> optional = employeeRepository.findById(Long.parseLong(id));
 		if (!optional.isPresent())
-			throw new RequestException(HttpStatus.NOT_FOUND, "Employee not found.");		
+			throw new RequestException(HttpStatus.NOT_FOUND, "Employee not found.");
 		Employee employee = optional.get();
 		Admin me = (Admin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		if (taskForm.getStartDate() == null)
@@ -82,21 +86,29 @@ public class AdminTaskController {
 	}
 
 	@DeleteMapping("/tasks/{id}")
-	public void deleteTaskById(@PathVariable String id) {
+	public TaskForm deleteTaskById(@PathVariable Long id) {
 		try {
-			taskRepository.deleteById(Long.parseLong(id));
-		} catch (EmptyResultDataAccessException e) {
+			TaskForm deletedForm = TaskForm.fromTask(taskRepository.findById(id).get());
+			taskRepository.deleteById(id);
+			return deletedForm;
+		} catch (EmptyResultDataAccessException | NullPointerException e) {
+			log.info("Task to be deleted was not found");
+			return null;
 		}
 	}
 
 	@PutMapping("/tasks/{id}")
-	public ResponseEntity<TaskForm> updateTask(@PathVariable String id, @RequestBody TaskForm patch) {
-		Optional<Task> optional = taskRepository.findById(Long.parseLong(id));
-		if (!optional.isPresent())
+	public ResponseEntity<TaskForm> updateTask(@PathVariable Long id, @RequestBody TaskForm patch) {
+		Optional<Task> optional = taskRepository.findById(id);
+		if (!optional.isPresent()) {
 			throw new RequestException(HttpStatus.NOT_FOUND, "Task not found.");
+		}
 		Task task = optional.get();
 		// Note that you cannot change the employee Id.
 		// If this is required just delete and make new task
+		if (patch.getTaskName() != task.getTaskName()) {
+			task.setTaskName(patch.getTaskName());
+		}
 		if (patch.isCompleted() != task.isCompleted()) {
 			task.setCompleted(task.isCompleted());
 		}
@@ -112,10 +124,9 @@ public class AdminTaskController {
 		taskRepository.save(task);
 		return new ResponseEntity<TaskForm>(patch, HttpStatus.OK);
 	}
-	
+
 	@GetMapping("/tasks")
-	public List<TaskForm> getTasksByAdmin()
-	{
+	public List<TaskForm> getTasksByAdmin() {
 		Admin me = (Admin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		List<Task> tasks = taskRepository.findByAdmin(me);
 		List<TaskForm> taskForms = new ArrayList<>();
@@ -132,5 +143,4 @@ public class AdminTaskController {
 		Employee employee = optional.get();
 		return taskRepository.findByEmployee(employee);
 	}
-
 }

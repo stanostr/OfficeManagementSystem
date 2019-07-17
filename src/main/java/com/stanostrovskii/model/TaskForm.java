@@ -8,7 +8,7 @@ import java.util.Date;
 public class TaskForm {
 	private Long id;
 	private Long employeeId;
-	private String employeeName; //TODO transitive dependency?
+	private String employeeName; 
 	private String taskName;
 	private String description;
 	private Date startDate;
