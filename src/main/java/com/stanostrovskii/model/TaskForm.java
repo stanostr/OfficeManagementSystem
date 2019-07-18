@@ -88,5 +88,4 @@ public class TaskForm {
 		task.setCompleted(completed);
 		return task;
 	}
-
 }

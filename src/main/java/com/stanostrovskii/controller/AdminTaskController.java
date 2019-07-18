@@ -75,7 +75,10 @@ public class AdminTaskController {
 		task.setEmployee(employee);
 		task.setAdmin(me);
 		task = taskRepository.save(task);
-		EmployeeEmailUtil.sendNewTaskEmail(employee, task, emailService);
+		try {
+			taskForm.setEmployeeName(employee.getFirstName() + " " + employee.getLastName());
+		} catch (NullPointerException e) {}
+		//EmployeeEmailUtil.sendNewTaskEmail(employee, task, emailService);
 		return new ResponseEntity<>(taskForm, HttpStatus.CREATED);
 	}
 

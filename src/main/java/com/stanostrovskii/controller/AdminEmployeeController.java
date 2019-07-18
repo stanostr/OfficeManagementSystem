@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.websocket.server.PathParam;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -112,9 +114,9 @@ public class AdminEmployeeController {
 		throw new RequestException(HttpStatus.NOT_FOUND, "Employee not found.");
 	}
 
-	@DeleteMapping(value = "/employees")
-	public void deleteEmployee(@RequestBody Employee employee) {
-		employeeRepository.delete(employee);
+	@DeleteMapping(value = "/employees/{id}")
+	public void deleteEmployee(@PathVariable Long id) {
+		employeeRepository.deleteById(id);
 	}
 
 	@GetMapping(value = "/departments")
