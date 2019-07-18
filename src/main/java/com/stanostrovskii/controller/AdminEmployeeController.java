@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.websocket.server.PathParam;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,6 +36,7 @@ import io.swagger.annotations.Api;
 @RequestMapping(path = "/admin", produces = "application/json")
 @Api(tags = { "Admin: Employee and Dept. Management" })
 public class AdminEmployeeController {
+	private static final Logger log = LoggerFactory.getLogger(AdminEmployeeController.class);
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -76,7 +77,12 @@ public class AdminEmployeeController {
 	public Employee saveEmployee(@RequestBody Employee employee) {
 		String plaintextPass = employee.getPassword();
 		encodePass(employee);
-		employee = employeeRepository.save(employee);
+		try {
+			employee = employeeRepository.save(employee);
+		} catch (Exception e)
+		{
+			throw new RequestException(HttpStatus.BAD_REQUEST, "Cannot violate unique constraints");
+		}
 		employee.setPassword(plaintextPass); // to avoid sending encoded pass
 		EmployeeEmailUtil.sendNewEmployeeEmail(employee, emailService);
 		return employee;
@@ -99,6 +105,9 @@ public class AdminEmployeeController {
 			}
 			if (patch.getEmail() != null) {
 				employee.setEmail(patch.getEmail());
+			}
+			if (patch.getDept() != null) {
+				employee.setDept(patch.getDept());
 			}
 			if (patch.getPassword() != null) {
 				employee.setPassword(patch.getPassword());

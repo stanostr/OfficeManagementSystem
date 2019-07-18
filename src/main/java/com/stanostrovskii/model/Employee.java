@@ -8,12 +8,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.validation.constraints.NotBlank;
-
-import org.springframework.security.config.annotation.authentication.configurers.userdetails.UserDetailsAwareConfigurer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Employee implements UserDetails {
@@ -115,6 +114,7 @@ public class Employee implements UserDetails {
 		this.password = password;
 	}
 
+    @JsonIgnore
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"));
