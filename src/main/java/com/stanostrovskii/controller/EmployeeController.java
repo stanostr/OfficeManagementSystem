@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,23 +24,26 @@ import com.stanostrovskii.dao.TaskRepository;
 import com.stanostrovskii.model.Employee;
 import com.stanostrovskii.model.LeaveRequest;
 import com.stanostrovskii.model.LeaveRequest.Status;
+import com.stanostrovskii.model.rooms.EmployeeRoomReservationRequest;
+import com.stanostrovskii.model.rooms.MeetingRoom;
+import com.stanostrovskii.model.rooms.Room;
+import com.stanostrovskii.model.rooms.RoomReservation;
+import com.stanostrovskii.model.rooms.TrainingRoom;
 import com.stanostrovskii.model.Task;
 import com.stanostrovskii.model.TaskForm;
 import com.stanostrovskii.service.EmailService;
+import com.stanostrovskii.service.EmployeeService;
 import com.stanostrovskii.util.EmployeeEmailUtil;
 
 import io.swagger.annotations.Api;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/employee")
+@RequestMapping(path="/employee", produces = "application/json")
 @Api(tags = { "Employee" })
 public class EmployeeController {
 	@Autowired
-	private LeaveRepository leaveRepository;
-	
-	@Autowired
-	private TaskRepository taskRepository;
+	private EmployeeService employeeService;
 
 	@Autowired
 	private EmailService emailService;
@@ -54,7 +58,7 @@ public class EmployeeController {
 	@GetMapping("/tasks")
 	public List<TaskForm> getTasks() {
 		Employee thisEmployee = (Employee) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		List<Task> tasks = taskRepository.findByEmployee(thisEmployee);
+		List<Task> tasks = employeeService.getTasksByEmployee(thisEmployee);
 		List<TaskForm> taskForms = new ArrayList<>();
 		for (Task task : tasks) {
 			taskForms.add(TaskForm.fromTask(task));
@@ -64,30 +68,22 @@ public class EmployeeController {
 
 	@PutMapping("/tasks/{id}")
 	public void completeTask(@PathVariable Long id) {
-		Optional<Task> optional = taskRepository.findById(id);
-		if (!optional.isPresent())
-			return;
-		Task task = optional.get();
-		if (!task.isCompleted())
-			EmployeeEmailUtil.sendCompletedTaskEmail(task, emailService);
-		task.setCompleted(true);
-		taskRepository.save(task);
+		Task completedTask = employeeService.completeTask(id);
+		if (completedTask!=null)
+			EmployeeEmailUtil.sendCompletedTaskEmail(completedTask, emailService);
 	}
 	
 	@GetMapping("/leave_requests")
 	public List<LeaveRequest> viewMyRequests()
 	{
 		Employee thisEmployee = (Employee) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return leaveRepository.findByEmployee(thisEmployee);
+		return employeeService.leaveRequestsByEmployee(thisEmployee);
 	}
 	
 	@GetMapping("/leave_requests/{id}")
 	public LeaveRequest viewRequestById(@PathVariable Long id)
 	{
-		Optional<LeaveRequest> optional = leaveRepository.findById(id);
-		if (!optional.isPresent())
-			throw new RequestException(HttpStatus.NOT_FOUND, "Leave request not found.");;
-		return optional.get();
+		return employeeService.leaveRequestById(id);
 	}
 	
 	@PostMapping("/leave_requests")
@@ -98,10 +94,47 @@ public class EmployeeController {
 			Employee thisEmployee = (Employee) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			request.setEmployee(thisEmployee);
 		}
-		request.setStatus(Status.PENDING); //employees can only make pending leave requests
-		request = leaveRepository.save(request);
-		request.getEmployee().setPassword(null);
-		return request;
+		return employeeService.addLeaveRequest(request);
 	}
 	
+	//
+	@GetMapping("/training")
+	public List<TrainingRoom> viewAllTrainingRooms() {
+		return employeeService.getAllTrainingRooms();
+	}
+
+	@GetMapping("/meeting")
+	public List<MeetingRoom> getAllMeetingRooms() {
+		return employeeService.getAllMeetingRooms();
+	}
+
+	@PostMapping("/training/reserve")
+	public ResponseEntity<EmployeeRoomReservationRequest> reserveTrainingRoom(
+			@RequestBody EmployeeRoomReservationRequest request) {
+		Employee me = (Employee) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return employeeService.processTrainingRoomReservation(request, me);
+	
+	}
+
+	@PostMapping("/meeting/reserve")
+	public ResponseEntity<EmployeeRoomReservationRequest> reserveMeetingRoom(
+			@RequestBody EmployeeRoomReservationRequest request) {
+		Employee me = (Employee) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return employeeService.processMeetingRoomReservation(request, me);
+	}
+
+	@GetMapping("/reservations")
+	public List<RoomReservation> getAllReservationsFromEmployee() {
+		Employee me = (Employee) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return employeeService.findAllReservationsByEmployee(me);
+	}
+
+	
+
+	@GetMapping("/reservations/{id}")
+	public ResponseEntity<RoomReservation> getReservation(@PathVariable Long id) {
+		return employeeService.getReservationById(id);
+	}
+
+
 }
