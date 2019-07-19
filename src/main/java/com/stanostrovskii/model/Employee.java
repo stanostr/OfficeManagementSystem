@@ -2,6 +2,8 @@ package com.stanostrovskii.model;
 
 import java.util.Arrays;
 import java.util.Collection;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -31,7 +33,7 @@ public class Employee implements UserDetails {
 	private String password;
 	@Column(name = "contact_number")
 	private String contactNumber;
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.DETACH)
 	@JoinColumn(name = "dept_id")
 	private Department dept;
 

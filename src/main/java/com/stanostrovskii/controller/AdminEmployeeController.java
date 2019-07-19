@@ -141,9 +141,17 @@ public class AdminEmployeeController {
 		return departmentRepository.save(department);
 	}
 
-	@DeleteMapping(value = "/departments")
-	public void deleteDepartment(@RequestBody Department department) {
-		departmentRepository.delete(department);
+	@DeleteMapping(value = "/departments/{id}")
+	public void deleteDepartment(@PathVariable Long id) {
+		Department dept = departmentRepository.findById(id).get();
+		if(dept==null) throw new RequestException(HttpStatus.NOT_FOUND, "Department not found.");
+		List<Employee> employeesWithDept = employeeRepository.findByDept(dept);
+		for(Employee e: employeesWithDept)
+		{
+			e.setDept(null);
+			employeeRepository.save(e);
+		}
+		departmentRepository.deleteById(id);
 	}
 
 	@PutMapping(value = "/departments")
