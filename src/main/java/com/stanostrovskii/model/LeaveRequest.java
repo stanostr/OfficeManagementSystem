@@ -11,6 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import com.sun.org.apache.xpath.internal.functions.FuncFalse;
+
 @Entity
 public class LeaveRequest {
 	public static enum Status {
@@ -33,8 +35,9 @@ public class LeaveRequest {
 	@Column(name = "end_date")
 	private Date endDate;
 	private String reason;
+	
 	@ManyToOne
-	@JoinColumn(name="employee_id")
+	@JoinColumn(name="employee_id", nullable = false)
 	private Employee employee;
 	
 	public LeaveRequest() {

@@ -49,6 +49,13 @@ public class AdminLeaveController {
 		return requests;
 	}
 	
+	@GetMapping("/leave_requests/{status}")
+	public List<LeaveRequest> viewRequestsByStatus(@PathVariable String status)
+	{
+		Status s =  Status.valueOf(status);
+		return leaveRepository.findByStatus(s);
+	}
+	
 	
 	@GetMapping("/leave_requests/employee")
 	public List<LeaveRequest> viewRequestsByEmployee(@RequestParam Long id)

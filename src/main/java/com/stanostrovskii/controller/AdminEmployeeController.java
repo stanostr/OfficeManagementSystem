@@ -142,7 +142,7 @@ public class AdminEmployeeController {
 	}
 
 	@DeleteMapping(value = "/departments/{id}")
-	public void deleteDepartment(@PathVariable Long id) {
+	public Department deleteDepartment(@PathVariable Long id) {
 		Department dept = departmentRepository.findById(id).get();
 		if(dept==null) throw new RequestException(HttpStatus.NOT_FOUND, "Department not found.");
 		List<Employee> employeesWithDept = employeeRepository.findByDept(dept);
@@ -152,6 +152,7 @@ public class AdminEmployeeController {
 			employeeRepository.save(e);
 		}
 		departmentRepository.deleteById(id);
+		return dept;
 	}
 
 	@PutMapping(value = "/departments")
