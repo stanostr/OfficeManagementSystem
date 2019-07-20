@@ -13,4 +13,5 @@ public interface RoomReservationRepository extends CrudRepository<RoomReservatio
 	List<RoomReservation> findByRoomAndStatus(Room room, RoomReservation.Status status);
 	List<RoomReservation> findByStatus(RoomReservation.Status status);
 	List<RoomReservation> findByEmployee(Employee employee);
+	void deleteByRoom(Room room);
 }
