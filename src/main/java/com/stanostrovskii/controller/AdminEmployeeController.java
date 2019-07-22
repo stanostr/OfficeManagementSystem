@@ -1,14 +1,9 @@
 package com.stanostrovskii.controller;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,11 +16,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 
-import com.stanostrovskii.RequestException;
-import com.stanostrovskii.dao.DepartmentRepository;
-import com.stanostrovskii.dao.EmployeeRepository;
 import com.stanostrovskii.model.Department;
 import com.stanostrovskii.model.Employee;
+import com.stanostrovskii.service.AdminEmployeeService;
 import com.stanostrovskii.service.EmailService;
 import com.stanostrovskii.util.EmployeeEmailUtil;
 
@@ -36,24 +29,18 @@ import io.swagger.annotations.Api;
 @RequestMapping(path = "/admin", produces = "application/json")
 @Api(tags = { "Admin: Employee and Dept. Management" })
 public class AdminEmployeeController {
-	private static final Logger log = LoggerFactory.getLogger(AdminEmployeeController.class);
 
 	@Autowired
-	private PasswordEncoder passwordEncoder;
-
-	@Autowired
-	private EmployeeRepository employeeRepository;
-
-	@Autowired
-	private DepartmentRepository departmentRepository;
+	private AdminEmployeeService employeeService;
 
 	@Autowired
 	private EmailService emailService;
 
 	@GetMapping(value = "/employees")
 	public List<Employee> viewAllEmployees() {
-		List<Employee> list = new ArrayList<>();
-		employeeRepository.findAll().forEach(list::add);
+		List<Employee> list =  employeeService.getAllEmployees();
+		//set all passwords to null to prevent transmitting encrypted passwords,
+		//which are of no benefit to a legitimate consumer
 		list.replaceAll(e -> {
 			e.setPassword(null);
 			return e;
@@ -62,27 +49,17 @@ public class AdminEmployeeController {
 	}
 
 	@GetMapping(value = "/employees/{id}")
-	public ResponseEntity<Employee> viewEmployeeById(@PathVariable String id) {
-		Optional<Employee> optEmp = employeeRepository.findById(Long.parseLong(id));
-		if (optEmp.isPresent()) {
-			Employee employee = optEmp.get();
-			employee.setPassword(null); // to avoid transmitting encrypted password
-			return new ResponseEntity<>(employee, HttpStatus.OK);
-		}
-		throw new RequestException(HttpStatus.NOT_FOUND, "Employee not found.");
+	public ResponseEntity<Employee> viewEmployeeById(@PathVariable Long id) {
+		Employee employee = employeeService.findEmployeeById(id);
+		employee.setPassword(null);
+		return new ResponseEntity<Employee>(employee, HttpStatus.OK);
 	}
 
 	@PostMapping(value = "/employees")
 	@ResponseStatus(HttpStatus.CREATED)
 	public Employee saveEmployee(@RequestBody Employee employee) {
 		String plaintextPass = employee.getPassword();
-		encodePass(employee);
-		try {
-			employee = employeeRepository.save(employee);
-		} catch (Exception e)
-		{
-			throw new RequestException(HttpStatus.BAD_REQUEST, "Cannot violate unique constraints");
-		}
+		employee = employeeService.saveEmployee(employee);
 		employee.setPassword(plaintextPass); // to avoid sending encoded pass
 		EmployeeEmailUtil.sendNewEmployeeEmail(employee, emailService);
 		return employee;
@@ -90,77 +67,34 @@ public class AdminEmployeeController {
 
 	@PutMapping(value = "/employees")
 	public ResponseEntity<Employee> updateEmployee(@RequestBody Employee patch) {
-		Optional<Employee> optEmp = employeeRepository.findById(patch.getId());
-		// only update if employee already exists
-		if (optEmp.isPresent()) {
-			Employee employee = optEmp.get();
-			if (patch.getFirstName() != null) {
-				employee.setFirstName(employee.getFirstName());
-			}
-			if (patch.getLastName() != null) {
-				employee.setLastName(employee.getLastName());
-			}
-			if (patch.getContactNumber() != null) {
-				employee.setContactNumber(patch.getContactNumber());
-			}
-			if (patch.getEmail() != null) {
-				employee.setEmail(patch.getEmail());
-			}
-			if (patch.getDept() != null) {
-				employee.setDept(patch.getDept());
-			}
-			if (patch.getPassword() != null) {
-				employee.setPassword(patch.getPassword());
-				encodePass(employee);
-			}
-			employee = employeeRepository.save(employee);
-			if (patch.getPassword() != null)
-				employee.setPassword(patch.getPassword());
-			else
-				employee.setPassword(null);
-			return new ResponseEntity<>(employee, HttpStatus.OK);
-		}
-		throw new RequestException(HttpStatus.NOT_FOUND, "Employee not found.");
+		Employee employee = employeeService.updateEmployee(patch);
+		return new ResponseEntity<Employee>(employee, HttpStatus.OK);
 	}
 
 	@DeleteMapping(value = "/employees/{id}")
 	public void deleteEmployee(@PathVariable Long id) {
-		employeeRepository.deleteById(id);
+		employeeService.deleteEmployee(id);
 	}
 
 	@GetMapping(value = "/departments")
 	public List<Department> viewDepartments() {
-		List<Department> departments = new ArrayList<>();
-		departmentRepository.findAll().forEach(departments::add);
-		return departments;
+		return employeeService.findAllDepartments();
 	}
 
 	@PostMapping(value = "/departments")
 	@ResponseStatus(HttpStatus.CREATED)
 	public Department addDepartment(@RequestBody Department department) {
-		return departmentRepository.save(department);
+		return employeeService.saveDepartment(department);
 	}
 
 	@DeleteMapping(value = "/departments/{id}")
 	public Department deleteDepartment(@PathVariable Long id) {
-		Department dept = departmentRepository.findById(id).get();
-		if(dept==null) throw new RequestException(HttpStatus.NOT_FOUND, "Department not found.");
-		List<Employee> employeesWithDept = employeeRepository.findByDept(dept);
-		for(Employee e: employeesWithDept)
-		{
-			e.setDept(null);
-			employeeRepository.save(e);
-		}
-		departmentRepository.deleteById(id);
-		return dept;
+		return employeeService.deleteDepartment(id);
 	}
 
 	@PutMapping(value = "/departments")
 	public Department updateDepartment(@RequestBody Department department) {
-		return departmentRepository.save(department);
+		return employeeService.updateDepartment(department);
 	}
 
-	private void encodePass(Employee employee) {
-		employee.setPassword(passwordEncoder.encode(employee.getPassword()));
-	}
 }

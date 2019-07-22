@@ -32,7 +32,7 @@ import com.stanostrovskii.model.rooms.TrainingRoom;
 import com.stanostrovskii.model.Task;
 import com.stanostrovskii.model.TaskForm;
 import com.stanostrovskii.service.EmailService;
-import com.stanostrovskii.service.EmployeeService;
+import com.stanostrovskii.service.EmployeeActionsService;
 import com.stanostrovskii.util.EmployeeEmailUtil;
 
 import io.swagger.annotations.Api;
@@ -43,7 +43,7 @@ import io.swagger.annotations.Api;
 @Api(tags = { "Employee" })
 public class EmployeeController {
 	@Autowired
-	private EmployeeService employeeService;
+	private EmployeeActionsService employeeService;
 
 	@Autowired
 	private EmailService emailService;

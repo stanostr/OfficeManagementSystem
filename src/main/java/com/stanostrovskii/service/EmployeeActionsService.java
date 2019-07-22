@@ -26,7 +26,7 @@ import com.stanostrovskii.model.rooms.RoomReservation;
 import com.stanostrovskii.model.rooms.TrainingRoom;
 
 @Service
-public class EmployeeService {
+public class EmployeeActionsService {
 	@Autowired
 	private LeaveRepository leaveRepository;
 	
