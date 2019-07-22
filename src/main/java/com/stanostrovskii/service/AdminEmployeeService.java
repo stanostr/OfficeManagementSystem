@@ -64,10 +64,10 @@ public class AdminEmployeeService {
 		if (optEmp.isPresent()) {
 			Employee employee = optEmp.get();
 			if (patch.getFirstName() != null) {
-				employee.setFirstName(employee.getFirstName());
+				employee.setFirstName(patch.getFirstName());
 			}
 			if (patch.getLastName() != null) {
-				employee.setLastName(employee.getLastName());
+				employee.setLastName(patch.getLastName());
 			}
 			if (patch.getContactNumber() != null) {
 				employee.setContactNumber(patch.getContactNumber());

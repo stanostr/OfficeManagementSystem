@@ -14,5 +14,4 @@ public class ExceptionHandlerAdvice {
 		return ResponseEntity.status(e.getHttpStatus())
 				.body(new SingleMessageResponse(e.getMessage()));
 	}
-
 }
