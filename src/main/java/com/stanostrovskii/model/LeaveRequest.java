@@ -11,15 +11,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import com.sun.org.apache.xpath.internal.functions.FuncFalse;
-
 @Entity
 public class LeaveRequest {
 	public static enum Status {
 		APPROVED, REJECTED, PENDING, OTHER
 	}
 	public static enum LeaveType {
-		SICK_LEAVE, VACATION_LEAVE, HOLIDAY, EARNED_LEAVE
+		SICK_LEAVE, VACATION_LEAVE, HOLIDAY_LEAVE, EARNED_LEAVE
 	}
 	@Id
 	@GeneratedValue

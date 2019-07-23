@@ -75,6 +75,13 @@ public class EmployeeActionsService {
 		request.getEmployee().setPassword(null);
 		return request;
 	}
+	
+	public LeaveRequest deleteRequestById(Long id) {
+		LeaveRequest request = leaveRepository.findById(id).get();
+		if(request==null) throw new RequestException(HttpStatus.NOT_FOUND, "Request not found!");
+		leaveRepository.delete(request);
+		return request;
+	}
 
 	public List<TrainingRoom> getAllTrainingRooms() {
 		List<TrainingRoom> list = new ArrayList<>();

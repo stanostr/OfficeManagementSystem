@@ -23,7 +23,6 @@ import com.stanostrovskii.service.EmailService;
 import com.stanostrovskii.util.EmployeeEmailUtil;
 
 import io.swagger.annotations.Api;
-import sun.util.logging.resources.logging;
 
 @CrossOrigin(origins = "*")
 @RestController

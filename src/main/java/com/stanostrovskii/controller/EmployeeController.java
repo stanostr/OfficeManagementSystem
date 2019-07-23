@@ -3,13 +3,11 @@ package com.stanostrovskii.controller;
 import java.util.ArrayList;
 
 import java.util.List;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,15 +16,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.stanostrovskii.RequestException;
-import com.stanostrovskii.dao.LeaveRepository;
-import com.stanostrovskii.dao.TaskRepository;
 import com.stanostrovskii.model.Employee;
 import com.stanostrovskii.model.LeaveRequest;
-import com.stanostrovskii.model.LeaveRequest.Status;
 import com.stanostrovskii.model.rooms.EmployeeRoomReservationRequest;
 import com.stanostrovskii.model.rooms.MeetingRoom;
-import com.stanostrovskii.model.rooms.Room;
 import com.stanostrovskii.model.rooms.RoomReservation;
 import com.stanostrovskii.model.rooms.TrainingRoom;
 import com.stanostrovskii.model.Task;
@@ -84,6 +77,12 @@ public class EmployeeController {
 	public LeaveRequest viewRequestById(@PathVariable Long id)
 	{
 		return employeeService.leaveRequestById(id);
+	}
+	
+	@DeleteMapping("/leave_requests/{id}")
+	public LeaveRequest deleteLeaveRequest(@PathVariable Long id)
+	{
+		return employeeService.deleteRequestById(id);
 	}
 	
 	@PostMapping("/leave_requests")
