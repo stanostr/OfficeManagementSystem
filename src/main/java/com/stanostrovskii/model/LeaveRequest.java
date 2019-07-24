@@ -17,7 +17,7 @@ public class LeaveRequest {
 		APPROVED, REJECTED, PENDING, OTHER
 	}
 	public static enum LeaveType {
-		SICK_LEAVE, VACATION_LEAVE, HOLIDAY, EARNED_LEAVE
+		SICK_LEAVE, VACATION_LEAVE, HOLIDAY_LEAVE, EARNED_LEAVE
 	}
 	@Id
 	@GeneratedValue
@@ -33,8 +33,9 @@ public class LeaveRequest {
 	@Column(name = "end_date")
 	private Date endDate;
 	private String reason;
+	
 	@ManyToOne
-	@JoinColumn(name="employee_id")
+	@JoinColumn(name="employee_id", nullable = false)
 	private Employee employee;
 	
 	public LeaveRequest() {

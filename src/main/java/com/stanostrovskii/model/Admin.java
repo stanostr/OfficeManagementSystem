@@ -13,8 +13,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import sun.security.util.Password;
-
 @Entity
 @Table(name = "eoffice_admin")
 public class Admin implements UserDetails {
