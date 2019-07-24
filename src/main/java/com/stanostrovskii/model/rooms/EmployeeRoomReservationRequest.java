@@ -7,25 +7,25 @@ import org.apache.commons.lang3.time.DateUtils;
 
 public class EmployeeRoomReservationRequest {
 	private Long roomId;
-	private Date startTime;
-	private Date endTime;
+	private String startTime;
+	private String endTime;
 	public Long getRoomId() {
 		return roomId;
 	}
 	public void setRoomId(Long roomId) {
 		this.roomId = roomId;
 	}
-	public Date getStartTime() {
+	public String getStartTime() {
 		return startTime;
 	}
-	public void setStartTime(Date startTime) {
-		this.startTime = DateUtils.truncate(startTime, Calendar.HOUR);
+	public void setStartTime(String startTime) {
+		this.startTime = startTime;
 	}
-	public Date getEndTime() {
+	public String getEndTime() {
 		return endTime;
 	}
-	public void setEndTime(Date endTime) {
-		this.endTime = DateUtils.ceiling(endTime, Calendar.HOUR);
+	public void setEndTime(String endTime) {
+		this.endTime = endTime;
 	}
 	
 }
