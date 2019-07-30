@@ -3,7 +3,6 @@ package com.stanostrovskii;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.Test;

@@ -1,6 +1,5 @@
 package com.stanostrovskii.model.rooms;
 
-import java.util.Calendar;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -13,9 +12,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-
-import org.apache.commons.lang3.time.DateUtils;
-
 import com.stanostrovskii.model.Employee;
 
 @Entity
@@ -52,10 +48,9 @@ public class RoomReservation {
 	}
 
 	public RoomReservation(Employee employee, Date startTime, Date endTime) {
-		// for simplicity, reservations are by hour
 		this.employee = employee;
-		this.startTime = DateUtils.truncate(startTime, Calendar.HOUR);
-		this.endTime = DateUtils.ceiling(startTime, Calendar.HOUR);
+		this.startTime = startTime;
+		this.endTime = endTime;
 		status = Status.PENDING;
 	}
 
@@ -80,8 +75,7 @@ public class RoomReservation {
 	}
 
 	public void setStartTime(Date startTime) {
-		// truncate to nearest hour
-		this.startTime = DateUtils.truncate(startTime, Calendar.HOUR);
+		this.startTime = startTime;
 	}
 
 	public Date getEndTime() {
@@ -89,8 +83,7 @@ public class RoomReservation {
 	}
 
 	public void setEndTime(Date endTime) {
-		// rounds up to nearest hour
-		this.endTime = DateUtils.ceiling(endTime, Calendar.HOUR);
+		this.endTime = endTime;
 	}
 	public void setEmployee(Employee employee)
 	{
