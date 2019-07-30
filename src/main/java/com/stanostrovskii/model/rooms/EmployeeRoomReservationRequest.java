@@ -1,10 +1,5 @@
 package com.stanostrovskii.model.rooms;
 
-import java.util.Calendar;
-import java.util.Date;
-
-import org.apache.commons.lang3.time.DateUtils;
-
 public class EmployeeRoomReservationRequest {
 	private Long roomId;
 	private String startTime;

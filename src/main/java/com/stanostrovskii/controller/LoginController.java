@@ -46,6 +46,7 @@ public class LoginController {
 		String role = userDetails.getAuthorities().iterator().next().getAuthority();
 		String token = jwtTokenUtil.generateToken(userDetails);
 		log.info("Successfully authenticated user with username " + authenticationRequest.getUsername());
+		log.info("Generated JWT token: " + token);
 		return new ResponseEntity<LoginResponse>(new LoginResponse(token, role), HttpStatus.OK);
 	}
 
