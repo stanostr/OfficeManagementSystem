@@ -39,24 +39,24 @@ public class LoginController {
 	private UserDetailsService userDetailsService;
 
 	@PostMapping
-	public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest)
+	public ResponseEntity<LoginResponse> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest)
 			throws Exception {
 		authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 		UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
 		String role = userDetails.getAuthorities().iterator().next().getAuthority();
 		String token = jwtTokenUtil.generateToken(userDetails);
 		log.info("Successfully authenticated user with username " + authenticationRequest.getUsername());
-		log.info("Generated JWT token: " + token);
-		return new ResponseEntity<LoginResponse>(new LoginResponse(token, role), HttpStatus.OK);
+		log.info("Generated JWT token: {}",  token);
+		return new ResponseEntity<>(new LoginResponse(token, role), HttpStatus.OK);
 	}
 
 	private void authenticate(String username, String password) throws Exception {
 		try {
 			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 		} catch (DisabledException e) {
-			throw new Exception("User disabled", e);
+			throw new DisabledException("User disabled", e);
 		} catch (BadCredentialsException e) {
-			throw new Exception("Invalid credentials", e);
+			throw new BadCredentialsException("Invalid credentials", e);
 		}
 	}
 

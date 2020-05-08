@@ -52,7 +52,7 @@ public class AdminEmployeeController {
 	public ResponseEntity<Employee> viewEmployeeById(@PathVariable Long id) {
 		Employee employee = employeeService.findEmployeeById(id);
 		employee.setPassword(null);
-		return new ResponseEntity<Employee>(employee, HttpStatus.OK);
+		return new ResponseEntity<>(employee, HttpStatus.OK);
 	}
 
 	@PostMapping(value = "/employees")

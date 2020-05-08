@@ -33,8 +33,6 @@ public class AdminRoomController {
 	@Autowired
 	private AdminRoomService roomService;
 
-
-
 	@GetMapping("/training")
 	public List<TrainingRoom> getAllTrainingRooms() {
 		return roomService.getAllTrainingRoom();
@@ -54,7 +52,7 @@ public class AdminRoomController {
 	@GetMapping("/meeting/{id}")
 	public ResponseEntity<MeetingRoom> getMeetingRoomById(@PathVariable Long id) {
 		MeetingRoom room = roomService.getMeetingRoomById(id);
-		return new ResponseEntity<MeetingRoom>(room, HttpStatus.OK);
+		return new ResponseEntity<>(room, HttpStatus.OK);
 	}
 
 	@PostMapping("/training")
